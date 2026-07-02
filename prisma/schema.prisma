@@ -1,0 +1,71 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model User {
+
+  id String @id @default(uuid())
+
+  name String
+
+  email String @unique
+
+  password String
+
+  medicines Medicine[]
+
+  createdAt DateTime @default(now())
+
+}
+
+
+
+model Medicine {
+
+  id String @id @default(uuid())
+
+  name String
+
+  dosage String
+
+  frequency String
+
+  totalPills Int
+
+  remainingPills Int
+
+
+  userId String
+
+  user User @relation(fields: [userId], references: [id])
+
+
+  logs MedicineLog[]
+
+  createdAt DateTime @default(now())
+
+}
+
+
+
+model MedicineLog {
+
+  id String @id @default(uuid())
+
+  status String
+
+
+  medicineId String
+
+  medicine Medicine @relation(fields: [medicineId], references: [id])
+
+
+  createdAt DateTime @default(now())
+
+}
