@@ -1,7 +1,8 @@
 import prisma from "../config/prisma.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-
+import type { AuthRequest } from "../middleware/auth.middleware.js";
+import type { Response } from "express";
 
 export const register = async(req:any,res:any)=>{
 
@@ -137,5 +138,43 @@ export const login = async (req: any, res: any) => {
       message: "Server error",
     });
 
+  }
+};
+
+export const getCurrentUser = async (
+  req: AuthRequest,
+  res: Response
+) => {
+  try {
+    if (!req.user) {
+  return res.status(401).json({
+    message: "Unauthorized",
+  });
+}
+    const user = await prisma.user.findUnique({
+      where: {
+        id: req.user?.userId,
+      },
+      select: {
+        id: true,
+        name: true,
+        email: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    res.status(200).json(user);
+  } catch (error) {
+    console.log(error);
+
+    res.status(500).json({
+      message: "Server error",
+    });
   }
 };
